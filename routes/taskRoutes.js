@@ -2,6 +2,14 @@ const express = require("express");
 const Task = require("../models/Task");
 const router = express.Router();
 
+// helper function to fix timezone shift
+function toLocalDate(deadline) {
+  if (!deadline) return undefined;
+  const localDeadline = new Date(deadline);
+  const offset = localDeadline.getTimezoneOffset(); // in minutes
+  return new Date(localDeadline.getTime() - offset * 60000);
+}
+
 // Create a new task
 router.post("/", async (req, res) => {
   try {
@@ -10,7 +18,7 @@ router.post("/", async (req, res) => {
     const task = new Task({
       title,
       description,
-      deadline: new Date(deadline), // ✅ ensure proper Date object
+      deadline: toLocalDate(deadline), // ✅ fix timezone issue
       completed: completed || false,
     });
 
@@ -41,7 +49,7 @@ router.put("/:id", async (req, res) => {
       {
         title,
         description,
-        deadline: deadline ? new Date(deadline) : undefined, // ✅ convert only if provided
+        deadline: deadline ? toLocalDate(deadline) : undefined, // ✅ fix on update too
         completed,
       },
       { new: true }
