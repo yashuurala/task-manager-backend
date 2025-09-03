@@ -33,11 +33,12 @@ cron.schedule("*/5 * * * *", async () => {
     for (const task of tasks) {
       const mins = minutesUntil(task.deadline);
       if (mins <= 30 && mins >= 0) {
-        // ✅ format deadline in IST (or your local timezone)
+        // ✅ format deadline explicitly in IST
         const formattedDeadline = new Date(task.deadline).toLocaleString("en-IN", {
           dateStyle: "short",
           timeStyle: "short",
           hour12: true,
+          timeZone: "Asia/Kolkata", // ✅ force IST timezone
         });
 
         await transporter.sendMail({
