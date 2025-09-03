@@ -33,13 +33,18 @@ cron.schedule("*/5 * * * *", async () => {
     for (const task of tasks) {
       const mins = minutesUntil(task.deadline);
       if (mins <= 30 && mins >= 0) {
+        // ✅ format deadline in IST (or your local timezone)
+        const formattedDeadline = new Date(task.deadline).toLocaleString("en-IN", {
+          dateStyle: "short",
+          timeStyle: "short",
+          hour12: true,
+        });
+
         await transporter.sendMail({
           from: `"Cloud Task Manager" <${process.env.SMTP_USER}>`,
           to: process.env.REMIND_TO,
           subject: `Reminder: ${task.title} (due in ${mins} min)`,
-          text: `Heads up! "${task.title}" is due at ${new Date(
-            task.deadline
-          ).toLocaleString()}.`,
+          text: `Heads up! "${task.title}" is due at ${formattedDeadline}.`,
         });
 
         task.reminded = true;
